@@ -357,11 +357,24 @@ size_t Test_Runner::run_tests(const std::vector<std::string>& tests_to_run,
             }
          }
 
+      const auto test_timeout = std::chrono::seconds(60);
+
       for(size_t i = 0; i != m_fut_results.size(); ++i)
          {
          output() << tests_to_run[i] << ':' << std::endl;
-         const std::vector<Test::Result> results = m_fut_results[i].get();
-         output() << report_out(results, tests_failed, tests_ran) << std::flush;
+
+         auto status = m_fut_results[i].wait_for(test_timeout);
+
+         if(status == std::future_status::ready)
+            {
+            const std::vector<Test::Result> results = m_fut_results[i].get();
+            output() << report_out(results, tests_failed, tests_ran) << std::flush;
+            }
+         else
+            {
+            std::vector<Test::Result> results = { Test::Result::Failure(tests_to_run[i], "timeout") };
+            output() << report_out(results, tests_failed, tests_ran) << std::flush;
+            }
          }
 
       pool.shutdown();
