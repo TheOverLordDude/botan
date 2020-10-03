@@ -1,3 +1,6 @@
+I am editing this fork to be C++11+ compliant. Converting all raw pointers to smart pointers. Likely simply shared pointers.
+
+
 Botan: Crypto and TLS for Modern C++
 ========================================
 
